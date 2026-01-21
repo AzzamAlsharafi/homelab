@@ -1,0 +1,46 @@
+services:
+  traefik:
+    image: "traefik:3.6"
+    container_name: "traefik"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    command:
+      - "--global.sendAnonymousUsage=false"
+      - "--api.insecure=false"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--providers.file.directory=/etc/traefik"
+      - "--providers.file.watch=true"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entryPoints.websecure.http.tls=true"
+      - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entryPoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.asDefault=true"
+      - "--entrypoints.websecure.http.tls.certresolver=le"
+      - "--entryPoints.websecure.http.middlewares=secure-headers@file,compression@file"
+      # Let's Encrypt configuration
+      - "--certificatesresolvers.le.acme.email=azzam@alsharafi.dev"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/storage/traefik/letsencrypt:/letsencrypt"
+      - "./config:/etc/traefik/config:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.home.alsharafi.dev`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=auth@file"
+
+networks:
+  proxy:
+    name: proxy

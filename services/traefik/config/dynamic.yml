@@ -1,0 +1,27 @@
+# config/dynamic.yml
+http:
+  middlewares:
+    secure-headers:
+      headers:
+        frameDeny: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+
+    compression:
+      compress:
+        minResponseBodyBytes: 1024
+        excludedContentTypes:
+          - "text/event-stream"
+          - "application/grpc"
+
+    auth:
+      forwardAuth:
+        address: "http://oauth2-proxy:4180"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Auth-Request-Access-Token"
+          - "X-Auth-Request-Email"
+          - "Authorization"

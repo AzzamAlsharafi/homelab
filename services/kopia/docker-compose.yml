@@ -1,0 +1,47 @@
+services:
+  kopia:
+      image: kopia/kopia:latest
+      container_name: Kopia
+      hostname: homelab
+      user: "0:0"
+      restart: "unless-stopped"
+      # privileged: true
+      # cap_add:
+      #   - SYS_ADMIN
+      security_opt:
+        - apparmor:unconfined
+      # devices:
+      #   - /dev/fuse:/dev/fuse:rwm
+      command:
+        - server
+        - start
+        - --disable-csrf-token-checks
+        - --insecure
+        - --address=0.0.0.0:51515
+        - --without-password
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /usr/bin/docker:/usr/bin/docker
+        - ./actions:/app/actions:ro
+        - /mnt/kopia:/tmp:shared
+        - /storage/kopia/config:/app/config
+        - /storage/kopia/cache:/app/cache
+        - /storage/kopia/logs:/app/logs
+        - /storage/kopia/db_dumps:/db_dumps:rw
+        - /:/data:ro
+      environment:
+        KOPIA_PASSWORD: ${KOPIA_PASSWORD}
+        TZ: Asia/Kuala_Lumpur
+        USER: azzam
+        DUMP_DIR: /db_dumps
+      networks:
+        - proxy
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.kopia.rule=Host(`kopia.home.alsharafi.dev`)"
+        - "traefik.http.services.kopia.loadbalancer.server.port=51515"
+        - "traefik.http.routers.kopia.middlewares=auth@file"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,27 @@
+services:
+  arcane:
+    image: ghcr.io/getarcaneapp/arcane:latest
+    container_name: arcane
+    ports:
+      - '3552:3552'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /storage/arcane:/app/data
+      - ../:/app/data/projects # Relative path to services directory
+    environment:
+      - APP_URL=https://arcane.home.alsharafi.dev
+      - PUID=1000
+      - PGID=1000
+      - ENCRYPTION_KEY=${ARCANE_ENCRYPTION_KEY}
+      - JWT_SECRET=${ARCANE_JWT_SECRET}
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.arcane.rule=Host(`arcane.home.alsharafi.dev`)"
+      - "traefik.http.services.arcane.loadbalancer.server.port=3552"
+
+networks:
+  proxy:
+    external: true
