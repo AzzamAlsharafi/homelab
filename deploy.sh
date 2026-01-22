@@ -9,7 +9,11 @@ fi
 
 echo "--- Homelab 'One-Command' Restore System ---"
 
-# 0. Update and Install Dependencies
+# 0. Capture the BWS Access Token
+read -sp "Enter Bitwarden Secrets Manager Access Token: " BWS_ACCESS_TOKEN
+echo -e "\nToken received."
+
+# 1. Update and Install Dependencies
 echo "Updating system and installing dependencies..."
 
 dnf update -y
@@ -17,10 +21,7 @@ dnf update -y
 dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo
 dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 systemctl enable --now docker
-
-# 1. Capture the BWS Access Token
-read -sp "Enter Bitwarden Secrets Manager Access Token: " BWS_ACCESS_TOKEN
-echo -e "\nToken received."
+usermod -aG docker $USER
 
 # Configuration
 BWS_PROJECT_NAME="Homelab"
@@ -85,6 +86,7 @@ echo "Data restoration complete."
 echo "Preparing host environment..."
 echo "Disabling systemd-resolved service to run adguard..."
 
+systemctl stop systemd-resolved-varlink.socket systemd-resolved-monitor.socket
 systemctl stop systemd-resolved
 systemctl disable systemd-resolved
 rm /etc/resolv.conf
@@ -93,15 +95,21 @@ echo "nameserver 1.1.1.1" | tee /etc/resolv.conf
 # --- 6. Launch Infrastructure ---
 echo "Launching all services from the 'services/' directory..."
 
-# Find all docker-compose.yml files exactly one level deep inside 'services/'
+# Start Traefik first to create proxy network
+docker compose --env-file .env -f "./services/traefik/docker-compose.yml" up -d
+
+# # Find all docker-compose.yml files exactly one level deep inside 'services/'
 # Then loop through them
 for compose_file in services/*/docker-compose.yml; do
+    # Skip traefik's docker-compose.yml as it's started first
+    if [[ "$compose_file" == *"traefik"* ]]; then
+        continue
+    fi
     if [ -f "$compose_file" ]; then
         service_name=$(basename "$(dirname "$compose_file")")
         echo "Starting service: $service_name"
         
         # Use --env-file to point to the root .env we fetched from BWS
-        # --project-directory ensures relative paths in the yml resolve correctly
         docker compose --env-file .env -f "$compose_file" up -d
     fi
 done
