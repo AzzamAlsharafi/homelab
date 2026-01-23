@@ -1,0 +1,41 @@
+
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: stirling-pdf
+    volumes:
+      # Persistent data storage
+      - /storage/stirling/tessdata:/usr/share/tessdata    # OCR language files
+      - /storage/stirling/configs:/configs                 # Settings & database
+      - /storage/stirling/logs:/logs                       # Application logs
+      - /storage/stirling/customFiles:/customFiles:rw      # Custom branding files
+      - /storage/stirling/pipeline:/pipeline               # Automation configs
+    environment:
+      # Core Settings
+      - SECURITY_ENABLELOGIN=false            # Disable user authentication
+
+      # Language & Localization
+      - LANGS=en_US                          # Change to your locale
+
+      # System Configuration
+      - SYSTEM_DEFAULTLOCALE=en-US           # Default locale
+      - SYSTEM_GOOGLEVISIBILITY=false        # Hide from search engines
+      - SYSTEM_ROOTURIPATH=/                 # Base URL path
+      - SYSTEM_CONNECTIONTIMEOUTMINUTES=5    # Connection timeout
+      - SYSTEM_MAXFILESIZE=2000              # Max file size in MB
+
+      # Optional: Logging
+      - SYSTEM_CUSTOMSTATICFILEPATH=/customFiles/static/  # Custom files path
+
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stirling-pdf.rule=Host(`pdf.home.alsharafi.dev`)"
+      - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
+      - "traefik.http.routers.stirling-pdf.middlewares=auth@file"
+
+networks:
+  proxy:
+    external: true

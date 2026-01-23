@@ -2,6 +2,7 @@ services:
   zitadel:
     restart: unless-stopped
     image: ghcr.io/zitadel/zitadel:latest
+    container_name: zitadel
     command: start-from-init --masterkey "${ZITADEL_MASTER_KEY}" --tlsMode external
     environment:
       ZITADEL_EXTERNALDOMAIN: auth.home.alsharafi.dev
@@ -97,6 +98,7 @@ services:
 
   login:
     restart: unless-stopped
+    container_name: zitadel_login
     image: ghcr.io/zitadel/zitadel-login:latest
     # If you can't use the network_mode service:zitadel, you can pass the environment variables ZITADEL_API_URL=http://zitadel:8080 and CUSTOM_REQUEST_HEADERS=Host:localhost instead.
     environment:

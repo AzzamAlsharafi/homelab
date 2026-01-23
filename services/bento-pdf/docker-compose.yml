@@ -1,0 +1,16 @@
+services:
+  bentopdf:
+    image: bentopdf/bentopdf:latest
+    container_name: bentopdf
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.bento-pdf.rule=Host(`pdf-tools.home.alsharafi.dev`)"
+        - "traefik.http.services.bento-pdf.loadbalancer.server.port=8080"
+        - "traefik.http.routers.bento-pdf.middlewares=auth@file"
+
+networks:
+  proxy:
+    external: true

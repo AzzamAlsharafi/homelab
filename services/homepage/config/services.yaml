@@ -1,0 +1,72 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- Tools & Utilities:
+    - IT Tools:
+        icon: it-tools
+        href: https://utils.home.alsharafi.dev
+        siteMonitor: http://it-tools:80
+        description: Tools for developers
+    - Omni Tools:
+        icon: omni-tools
+        href: https://tools.home.alsharafi.dev
+        siteMonitor: http://omni-tools:80
+        description: Collection of various tools 
+    - Vert.sh:
+        icon: sh-vert
+        href: https://convert.home.alsharafi.dev
+        siteMonitor: http://vert:80
+        description: File conversion tool
+    - Stirling PDF:
+        icon: stirling-pdf
+        href: https://pdf.home.alsharafi.dev
+        siteMonitor: http://stirling-pdf:8080
+        description: PDF editor
+    - Bento PDF:
+        icon: bentopdf
+        href: https://pdf-tools.home.alsharafi.dev
+        siteMonitor: http://bentopdf:8080
+        description: PDF manipulation tools
+
+- Networking:
+    - AdGuard Home:
+        icon: adguard-home
+        href: https://dns.home.alsharafi.dev
+        siteMonitor: http://adguard:80
+        description: Network-wide blocker
+        widget:
+          type: adguard
+          url: http://adguard:80
+          username: {{HOMEPAGE_VAR_ADGUARD_USERNAME}}
+          password: {{HOMEPAGE_VAR_ADGUARD_PASSWORD}}
+
+# - Monitoring:
+
+- Core Infrastructure:
+    - Traefik:
+        icon: traefik
+        href: https://traefik.home.alsharafi.dev
+        siteMonitor: http://traefik:8080
+        description: Reverse proxy & load balancer
+        widget:
+          type: traefik
+          url: http://traefik:8080
+    - Zitadel:
+        icon: zitadel
+        href: https://auth.home.alsharafi.dev
+        siteMonitor: http://zitadel_login:3000/ui/v2/login/loginname
+        description: Authentication provider
+    - Kopia:
+        icon: kopia
+        href: https://kopia.home.alsharafi.dev
+        siteMonitor: http://kopia:51515
+        description: Automated backup tool
+        widget:
+          type: kopia
+          url: http://kopia:51515
+    - Arcane:
+        icon: arcane
+        href: https://arcane.home.alsharafi.dev
+        siteMonitor: http://arcane:3552
+        description: Docker management dashboard

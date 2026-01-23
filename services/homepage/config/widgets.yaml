@@ -1,0 +1,20 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/info-widgets/
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+    uptime: true
+    refresh: 3000 # optional, in ms
+
+- openmeteo:
+    label: Kuala Lumpur
+    latitude: 3.1412
+    longitude: 101.6865
+    timezone: Asia/Kuala_Lumpur
+    units: metric
+    cache: 10
+    format:
+      maximumFractionDigits: 1

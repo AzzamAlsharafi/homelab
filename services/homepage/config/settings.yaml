@@ -1,0 +1,13 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/settings/
+
+title: Alsharafi.dev
+description: Home dashboard
+background: 
+  image: /images/background.jpg
+  brightness: 70 
+  opacity: 50
+cardBlur: md
+
+disableIndexing: true

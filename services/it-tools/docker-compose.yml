@@ -1,0 +1,15 @@
+services:
+  it-tools:
+    image: corentinth/it-tools:latest
+    container_name: it-tools
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.it-tools.rule=Host(`utils.home.alsharafi.dev`)"
+      - "traefik.http.routers.it-tools.middlewares=auth@file"
+
+networks:
+  proxy:
+    external: true

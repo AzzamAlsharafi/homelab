@@ -1,0 +1,21 @@
+services:
+  vert:
+    container_name: vert
+    image: ghcr.io/vert-sh/vert:latest
+    build:
+      context: .
+      args:
+        PUB_DISABLE_ALL_EXTERNAL_REQUESTS: true
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vert.rule=Host(`convert.home.alsharafi.dev`)"
+      - "traefik.http.routers.vert.middlewares=auth@file"
+
+  # TODO: Add vertd service later
+
+networks:
+  proxy:
+    external: true
