@@ -2,6 +2,13 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/services/
 
+- Data Management:
+    - Immich:
+        icon: immich
+        href: https://photos.home.alsharafi.dev
+        siteMonitor: http://immich_server:2283
+        description: Photos Service
+
 - Tools & Utilities:
     - IT Tools:
         icon: it-tools

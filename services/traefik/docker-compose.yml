@@ -18,6 +18,10 @@ services:
       - "--providers.file.watch=true"
       - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
+      # Immich Recommended Timeouts
+      - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=600s"
+      - "--entryPoints.websecure.transport.respondingTimeouts.idleTimeout=600s"
+      - "--entryPoints.websecure.transport.respondingTimeouts.writeTimeout=600s"
       - "--entryPoints.websecure.http.tls=true"
       - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
       - "--entryPoints.web.http.redirections.entryPoint.scheme=https"

@@ -8,7 +8,8 @@ echo "Starting Pre-Snapshot Database Dumps..."
 
 # --- Zitadel (Postgres) ---
 # We use the container name defined in your docker-compose
-docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" zitadel_db pg_dump -U "$PGUSER" zitadel > "$DUMP_DIR/zitadel_db.sql"
+docker exec zitadel_db pg_dump --clean --if-exists -U "$PGUSER" zitadel | gzip > "$DUMP_DIR/zitadel_db.sql.gz"
+docker exec immich_postgres pg_dumpall --clean --if-exists -U "$POSTGRES_USER" | gzip > "$DUMP_DIR/immich_db.sql.gz"
 
 # --- SQLite (If Authelia/other use a file) ---
 # If a service uses SQLite, it's safer to use the sqlite3 backup command
