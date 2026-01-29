@@ -1,0 +1,46 @@
+services:
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    ports:
+      - 8090:8090
+    environment:
+      APP_URL: "https://beszel.home.alsharafi.dev"
+      USER_CREATION: true
+      DISABLE_PASSWORD_AUTH: true
+      AUTO_LOGIN: false
+      SHARE_ALL_SYSTEMS: true
+    volumes:
+      - /storage/beszel/hub:/beszel_data
+      - ./beszel_socket:/beszel_socket
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.beszel.rule=Host(`beszel.home.alsharafi.dev`)"
+      - "traefik.http.services.beszel.loadbalancer.server.port=8090"
+
+  beszel-agent:
+    image: henrygd/beszel-agent:alpine
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    devices:
+    - /dev/sda:/dev/sda
+    cap_add: # required for S.M.A.R.T. data
+      - SYS_RAWIO
+      - SYS_ADMIN
+    volumes:
+      - /storage/beszel/agent:/var/lib/beszel-agent
+      - ./beszel_socket:/beszel_socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      HUB_URL: http://localhost:8090
+      TOKEN: 1c76d7bd-c5e8-4857-a394-f8fb37423fbd
+      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMI46GGUU+b5HHKZc9RR7RBpmKGQ/uL0Re0uleWI6OB4"
+
+networks:
+  proxy:
+    external: true

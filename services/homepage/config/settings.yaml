@@ -11,3 +11,9 @@ background:
 cardBlur: md
 
 disableIndexing: true
+
+layout:
+  Data Management:
+  Tools & Utilities:
+  GRP:
+    header: false
