@@ -7,7 +7,88 @@
         icon: immich
         href: https://photos.home.alsharafi.dev
         siteMonitor: http://immich_server:2283
-        description: Photos Service
+        description: Photos service
+- Media Stack:
+    - Jellyfin:
+        icon: jellyfin
+        href: https://jellyfin.home.alsharafi.dev
+        siteMonitor: http://jellyfin:8096
+        description: Media server
+        widget:
+            type: jellyfin
+            url: http://jellyfin:8096
+            key: {{HOMEPAGE_VAR_JELLYFIN_KEY}}
+            enableBlocks: true # optional, defaults to false
+            fields: ["movies", "series", "episodes"]
+            enableNowPlaying: true # optional, defaults to true
+            enableUser: true # optional, defaults to false
+            enableMediaControl: true # optional, defaults to true
+            showEpisodeNumber: true # optional, defaults to false
+            expandOneStreamToTwoRows: true # optional, defaults to true
+    - Jellyseerr:
+        icon: jellyseerr
+        href: https://jellyseerr.home.alsharafi.dev
+        siteMonitor: http://jellyseerr:5055
+        description: Requests management
+        widget:
+            type: jellyseerr
+            url: http://jellyseerr:5055
+            key: {{HOMEPAGE_VAR_JELLYSEER_KEY}}
+    - Sonarr:
+        icon: sonarr
+        href: https://sonarr.home.alsharafi.dev
+        siteMonitor: http://sonarr:8989
+        description: TV shows management
+        widget:
+            type: sonarr
+            url: http://sonarr:8989
+            key: {{HOMEPAGE_VAR_SONARR_KEY}}
+    - Radarr:
+        icon: radarr
+        href: https://radarr.home.alsharafi.dev
+        siteMonitor: http://radarr:7878
+        description: Movies management
+        widget:
+            type: radarr
+            url: http://radarr:7878
+            key: {{HOMEPAGE_VAR_RADARR_KEY}}
+    - Prowlarr:
+        icon: prowlarr
+        href: https://prowlarr.home.alsharafi.dev
+        siteMonitor: http://prowlarr:9696
+        description: Indexers management
+        widget:
+            type: prowlarr
+            url: http://prowlarr:9696
+            key: {{HOMEPAGE_VAR_PROWLARR_KEY}}
+    - Bazarr:
+        icon: bazarr
+        href: https://bazarr.home.alsharafi.dev
+        siteMonitor: http://bazarr:6767
+        description: Subtitles
+         management
+        widget:
+            type: bazarr
+            url: http://bazarr:6767
+            key: {{HOMEPAGE_VAR_BAZARR_KEY}}
+    - qBittorrent:
+        icon: qbittorrent
+        href: https://qbittorrent.home.alsharafi.dev
+        siteMonitor: http://qbittorrent:8080
+        description: Download client
+        widget:
+            type: qbittorrent
+            url: http://qbittorrent:8080
+            username: {{HOMEPAGE_VAR_QBITTORRENT_USER}}
+            password: {{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}
+            enableLeechProgress: true # optional, defaults to false
+            enableLeechSize: true # optional, defaults to false
+    # - Flaresolverr:
+    #     icon: flaresolverr
+    #     href: https://flaresolverr.home.alsharafi.dev
+    #     siteMonitor: http://flaresolverr:8191
+    #     description: CloudFlare protection bypapss
+        
 
 - Tools & Utilities:
     - IT Tools:
