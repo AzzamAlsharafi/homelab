@@ -22,6 +22,10 @@ services:
       - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=600s"
       - "--entryPoints.websecure.transport.respondingTimeouts.idleTimeout=600s"
       - "--entryPoints.websecure.transport.respondingTimeouts.writeTimeout=600s"
+      # allow encoded characters which is required for collaboration (OpenCloud)
+      - "--entryPoints.https.http.encodedCharacters.allowEncodedSlash=true"
+      - "--entryPoints.https.http.encodedCharacters.allowEncodedQuestionMark=true"
+      - "--entryPoints.https.http.encodedCharacters.allowEncodedPercent=true"
       - "--entryPoints.websecure.http.tls=true"
       - "--entryPoints.web.http.redirections.entryPoint.to=websecure"
       - "--entryPoints.web.http.redirections.entryPoint.scheme=https"

@@ -1,0 +1,51 @@
+directives:
+  child-src:
+    - '''self'''
+  connect-src:
+    - '''self'''
+    - 'blob:'
+    - 'https://${COMPANION_DOMAIN|companion.opencloud.test}${TRAEFIK_PORT_HTTPS}/'
+    - 'wss://${COMPANION_DOMAIN|companion.opencloud.test}${TRAEFIK_PORT_HTTPS}/'
+    - 'https://raw.githubusercontent.com/opencloud-eu/awesome-apps/'
+    - 'https://${IDP_DOMAIN|keycloak.opencloud.test}${TRAEFIK_PORT_HTTPS}/'
+    - 'https://update.opencloud.eu/'
+    - '${OC_OIDC_ISSUER}'
+  default-src:
+    - '''none'''
+  font-src:
+    - '''self'''
+  frame-ancestors:
+    - '''self'''
+  frame-src:
+    - '''self'''
+    - 'blob:'
+    - 'https://embed.diagrams.net/'
+    # In contrary to bash and docker the default is given after the | character
+    - 'https://${COLLABORA_DOMAIN|collabora.opencloud.test}${TRAEFIK_PORT_HTTPS}/'
+    - 'https://${ONLYOFFICE_DOMAIN|onlyoffice.opencloud.test}/'
+    # This is needed for the external-sites web extension when embedding sites
+    - 'https://docs.opencloud.eu'
+  img-src:
+    - '''self'''
+    - 'data:'
+    - 'blob:'
+    - 'https://raw.githubusercontent.com/opencloud-eu/awesome-apps/'
+    - 'https://tile.openstreetmap.org/'
+    # In contrary to bash and docker the default is given after the | character
+    - 'https://${COLLABORA_DOMAIN|collabora.opencloud.test}${TRAEFIK_PORT_HTTPS}/'
+    - '${OC_OIDC_ISSUER}'
+    - 'https://${ONLYOFFICE_DOMAIN|onlyoffice.opencloud.test}/'
+  manifest-src:
+    - '''self'''
+  media-src:
+    - '''self'''
+  object-src:
+    - '''self'''
+    - 'blob:'
+  script-src:
+    - '''self'''
+    - '''unsafe-inline'''
+    - 'https://${IDP_DOMAIN|keycloak.opencloud.test}${TRAEFIK_PORT_HTTPS}/'
+  style-src:
+    - '''self'''
+    - '''unsafe-inline'''

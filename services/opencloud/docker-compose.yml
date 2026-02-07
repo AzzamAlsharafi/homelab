@@ -1,0 +1,170 @@
+---
+services:
+  opencloud:
+    image: opencloudeu/opencloud-rolling:latest
+    user: 1000:1000
+    networks:
+      - opencloud
+      - proxy
+    entrypoint:
+      - /bin/sh
+    # run opencloud init to initialize a configuration file with random secrets
+    # it will fail on subsequent runs, because the config file already exists
+    # therefore we ignore the error and then start the opencloud server
+    command: ["-c", "opencloud init || true; opencloud server"]
+    environment:
+      # enable services that are not started automatically
+      OC_ADD_RUN_SERVICES: "antivirus"
+      OC_URL: https://cloud.home.alsharafi.dev
+      # OC_LOG_LEVEL: info
+      OC_LOG_COLOR: true
+      OC_LOG_PRETTY: true
+      # do not use SSL between the reverse proxy and OpenCloud
+      PROXY_TLS: "false"
+      # INSECURE: needed if OpenCloud / reverse proxy is using self generated certificates
+      OC_INSECURE: false
+      # basic auth (not recommended, but needed for eg. WebDav clients that do not support OpenID Connect)
+      PROXY_ENABLE_BASIC_AUTH: false
+      FRONTEND_ARCHIVER_MAX_SIZE: "10000000000"
+      PROXY_CSP_CONFIG_FILE_LOCATION: /etc/opencloud/csp.yaml
+      # control the password enforcement and policy for public shares
+      OC_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD: false
+      OC_SHARING_PUBLIC_WRITEABLE_SHARE_MUST_HAVE_PASSWORD: false
+      # OIDC
+      OC_OIDC_ISSUER: "https://auth.home.alsharafi.dev"
+      PROXY_ROLE_ASSIGNMENT_DRIVER: "oidc"
+      PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM: "oc_role"
+      WEB_OIDC_CLIENT_ID: ${OC_CLIENT_ID}
+      PROXY_OIDC_REWRITE_WELLKNOWNL: 'true'
+      PROXY_OIDC_ACCESS_TOKEN_VERIFY_METHOD: "none"
+      PROXY_OIDC_SKIP_VERIFICATION: "false"
+      WEB_OIDC_SCOPE: "openid profile email groups"
+      PROXY_USER_OIDC_CLAIM: "preferred_username"
+      PROXY_AUTOPROVISION_CLAIM_EMAIL: 'email'
+      PROXY_AUTOPROVISION_CLAIM_DISPLAYNAME: 'name'
+      PROXY_AUTOPROVISION_CLAIM_USERNAME: "preferred_username"
+      PROXY_AUTOPROVISION_CLAIM_GROUPS: 'groups'
+      PROXY_AUTOPROVISION_ACCOUNTS: "true"
+      WEB_OIDC_POST_LOGOUT_REDIRECT_URI: 'https://cloud.home.alsharafi.dev'
+      # fulltext search
+      SEARCH_EXTRACTOR_TYPE: tika
+      SEARCH_EXTRACTOR_TIKA_TIKA_URL: http://tika:9998
+      FRONTEND_FULL_TEXT_SEARCH_ENABLED: "true"
+      # antivirus
+      POSTPROCESSING_STEPS: "virusscan"
+      STORAGE_USERS_DATA_GATEWAY_URL: "http://opencloud:9200/data"
+      ANTIVIRUS_MAX_SCAN_SIZE: 100MB
+      ANTIVIRUS_INFECTED_FILE_HANDLING: abort
+      ANTIVIRUS_MAX_SCAN_SIZE_MODE: partial
+      ANTIVIRUS_WORKERS: 1
+      ANTIVIRUS_CLAMAV_SOCKET: /var/run/clamav/clamd.sock
+      ANTIVIRUS_SCANNER_TYPE: clamav
+      # office collaboration
+      ONLYOFFICE_DOMAIN: onlyoffice.home.alsharafi.dev
+      # expose nats and the reva gateway for the collaboration service
+      NATS_NATS_HOST: 0.0.0.0
+      GATEWAY_GRPC_ADDR: 0.0.0.0:9142
+
+    volumes:
+      - ./config/opencloud/csp.yaml:/etc/opencloud/csp.yaml
+      - ./config/opencloud/apps:/var/lib/opencloud/web/assets/apps
+      - /storage/opencloud/config:/etc/opencloud
+      - /storage/opencloud/data:/var/lib/opencloud
+      - clamav-socket:/var/run/clamav
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.opencloud.rule=Host(`cloud.home.alsharafi.dev`)"
+      - "traefik.http.services.opencloud.loadbalancer.server.port=9200"
+  
+  # Search service
+  tika:
+    image: apache/tika:latest-full
+    networks:
+      - opencloud
+    restart: unless-stopped
+
+  # Antivirus service
+  clamav:
+    image: clamav/clamav:latest
+    environment:
+      # Accepts a number with optional K, M or G suffix. Must be greater or equal to ANTIVIRUS_MAX_SCAN_SIZE above.
+      # K = KiB (1024), M = MiB (1024 * 1024), G = GiB (1024 * 1024 * 1024)
+      CLAMD_CONF_StreamMaxLength: 100M
+    networks:
+      - opencloud
+    volumes:
+      - clamav-socket:/tmp
+      - clamav-db:/var/lib/clamav
+    restart: unless-stopped
+  
+  # Office collaboration service
+  collaboration:
+    image: opencloudeu/opencloud-rolling:latest
+    user: 1000:1000
+    networks:
+      - opencloud
+      - proxy
+    depends_on:
+      opencloud:
+        condition: service_started
+      onlyoffice:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+    command: [ "-c", "opencloud collaboration server" ]
+    environment:
+      COLLABORATION_GRPC_ADDR: 0.0.0.0:9301
+      COLLABORATION_HTTP_ADDR: 0.0.0.0:9300
+      MICRO_REGISTRY: "nats-js-kv"
+      MICRO_REGISTRY_ADDRESS: "opencloud:9233"
+      COLLABORATION_WOPI_SRC: http://collaboration:9300
+      COLLABORATION_APP_NAME: "OnlyOffice"
+      COLLABORATION_APP_PRODUCT: "OnlyOffice"
+      COLLABORATION_APP_ADDR: https://onlyoffice.home.alsharafi.dev
+      COLLABORATION_APP_ICON: https://onlyoffice.home.alsharafi.dev/web-apps/apps/documenteditor/main/resources/img/favicon.ico
+      COLLABORATION_APP_INSECURE: false
+      COLLABORATION_CS3API_DATAGATEWAY_INSECURE: false
+      OC_URL: https://cloud.home.alsharafi.dev
+    volumes:
+      - /storage/opencloud/config:/etc/opencloud
+    restart: unless-stopped
+  
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice
+    networks:
+      - opencloud
+      - proxy
+    entrypoint:
+      - /bin/sh
+      - /entrypoint-override.sh
+    environment:
+      WOPI_ENABLED: "true"
+      # self-signed certificates
+      USE_UNAUTHORIZED_STORAGE: false
+    volumes:
+      - ./config/onlyoffice/entrypoint-override.sh:/entrypoint-override.sh
+      - ./config/onlyoffice/local.json:/etc/onlyoffice/documentserver/local.dist.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.onlyoffice.rule=Host(`onlyoffice.home.alsharafi.dev`)"
+      # websockets can't be opened when this is omitted
+      - "traefik.http.middlewares.onlyoffice.headers.customrequestheaders.X-Forwarded-Proto=https"
+      # CSP to allow embedding onlyoffice in ocis
+      - "traefik.http.middlewares.onlyoffice.headers.contentSecurityPolicy=frame-ancestors 'self' https://cloud.home.alsharafi.dev"
+      - "traefik.http.routers.onlyoffice.middlewares=onlyoffice"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/hosting/discovery"]
+
+
+volumes:
+  clamav-db:
+  clamav-socket:
+
+networks:
+  proxy:
+    external: true
+  opencloud:
+    internal: true

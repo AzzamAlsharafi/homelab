@@ -8,6 +8,11 @@
         href: https://photos.home.alsharafi.dev
         siteMonitor: http://immich_server:2283
         description: Photos service
+    - OpenCloud:
+        icon: open-cloud-dark
+        href: https://cloud.home.alsharafi.dev
+        siteMonitor: http://opencloud:9200
+        description: File storage & sharing
 - Media Stack:
     - Jellyfin:
         icon: jellyfin
