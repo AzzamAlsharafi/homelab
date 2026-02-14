@@ -116,6 +116,20 @@ done
 
 echo "All services started."
 
-# 7. Cleanup
+# --- 7. Final Setup ---
+if sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config; then
+    grep -q "^PasswordAuthentication no" /etc/ssh/sshd_config \
+        && echo "sshd_config modified successfuly" \
+        || echo "[ERROR] Failed to modify sshd_config"
+fi
+systemctl restart sshd
+
+dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+dnf install tailscale -y
+systemctl enable --now tailscaled
+tailscale up --login-server https://headscale.home.alsharafi.dev
+echo "Tailscale connected successfully."
+
+# 8. Cleanup
 unset BWS_ACCESS_TOKEN
 echo "--- SYSTEM RESTORED SUCCESSFULLY ---"
