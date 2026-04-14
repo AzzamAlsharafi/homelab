@@ -1,0 +1,10 @@
+services:
+  terraria:
+    restart: unless-stopped
+    image: ryshe/terraria:latest
+    ports:
+      - 7777:7777
+    volumes:
+      - /storage/terraria/Worlds:/root/.local/share/Terraria/Worlds
+    environment:
+      WORLD_FILENAME: "${TERRARIA_WORLD_FILENAME}"
