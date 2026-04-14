@@ -130,6 +130,17 @@ systemctl enable --now tailscaled
 tailscale up --login-server https://headscale.home.alsharafi.dev
 echo "Tailscale connected successfully."
 
-# 8. Cleanup
+# 8. Schedule Daily Update Cron Job
+echo "Configuring daily update cron job..."
+CRON_JOB="0 3 * * * $(pwd)/update.sh >> $(pwd)/update.log 2>&1"
+# Only add if not already present
+if ! crontab -l 2>/dev/null | grep -qF "update.sh"; then
+    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+    echo "Cron job added: runs daily at 3:00 AM."
+else
+    echo "Cron job already exists, skipping."
+fi
+
+# 9. Cleanup
 unset BWS_ACCESS_TOKEN
 echo "--- SYSTEM RESTORED SUCCESSFULLY ---"
