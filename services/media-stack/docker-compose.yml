@@ -12,7 +12,7 @@ services:
     volumes:
       - /storage/media/configs/jellyfin:/config
       - jellyfin-cache:/cache
-      - /storage/media:/media:ro
+      - /storage/media:/media
       - /etc/localtime:/etc/localtime:ro
     devices:
       - /dev/dri:/dev/dri # For hardware acceleration
