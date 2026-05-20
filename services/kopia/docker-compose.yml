@@ -18,7 +18,7 @@ services:
         - --disable-csrf-token-checks
         - --insecure
         - --address=0.0.0.0:51515
-        - --without-password
+        - --server-password=${KOPIA_SERVER_PASSWORD}
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - /usr/bin/docker:/usr/bin/docker
@@ -40,7 +40,7 @@ services:
         - "traefik.enable=true"
         - "traefik.http.routers.kopia.rule=Host(`kopia.home.alsharafi.dev`)"
         - "traefik.http.services.kopia.loadbalancer.server.port=51515"
-        - "traefik.http.routers.kopia.middlewares=auth@file"
+        - "traefik.http.routers.kopia.middlewares=auth-no-bearer@file"
 
 networks:
   proxy:

@@ -25,3 +25,12 @@ http:
           - "X-Auth-Request-Access-Token"
           - "X-Auth-Request-Email"
           - "Authorization"
+      
+    # For kopia, to not break basic HTTP auth in webui
+    auth-no-bearer:
+      forwardAuth:
+        address: "http://oauth2-proxy:4180"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Auth-Request-Access-Token"
+          - "X-Auth-Request-Email"
