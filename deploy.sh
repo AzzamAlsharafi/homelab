@@ -19,7 +19,7 @@ echo "Updating system and installing dependencies..."
 dnf update -y
 
 dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo
-dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin attr -y
 systemctl enable --now docker
 usermod -aG docker $USER
 
@@ -81,6 +81,22 @@ docker run --rm \
   "
 
 echo "Data restoration complete."
+
+# --- 4b. Restore OpenCloud extended attributes ---
+# Kopia strips xattrs, so OpenCloud's posix-driver metadata (user.oc.*) is dumped
+# to a sidecar by services/kopia/actions/pre-backup.sh and replayed here. Without
+# this, OpenCloud restores the file bytes but shows an empty file tree.
+OC_XATTR="/storage/kopia/db_dumps/opencloud.xattr"
+if [ -f "$OC_XATTR" ]; then
+    echo "Restoring OpenCloud xattrs from sidecar..."
+    if setfattr --restore="$OC_XATTR"; then
+        echo "OpenCloud xattrs restored."
+    else
+        echo "[WARN] setfattr reported errors - some paths in the dump may no longer exist."
+    fi
+else
+    echo "[WARN] No OpenCloud xattr sidecar at $OC_XATTR - opencloud may show no files until xattrs are restored."
+fi
 
 # --- 5. Host Preparation ---
 echo "Preparing host environment..."
