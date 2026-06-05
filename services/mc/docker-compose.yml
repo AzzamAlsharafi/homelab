@@ -1,0 +1,32 @@
+services:
+  mc:
+    image: itzg/minecraft-server:java21
+    tty: true
+    stdin_open: true
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: true
+      MOD_PLATFORM: AUTO_CURSEFORGE
+      # Allocate API key from https://console.curseforge.com/
+      # and set in .env file making sure to double up dollar signs, such as
+      # CF_API_KEY=$$2a$$10$$....
+      # Refer to https://docker-minecraft-server.readthedocs.io/en/latest/types-and-platforms/mod-platforms/auto-curseforge/#api-key
+      CF_API_KEY: "${MC_CF_API_KEY}"
+      CF_SLUG: all-the-mods-10
+      # Optional: select a specific version/file
+      # CF_FILENAME_MATCHER: "1.17"
+      MEMORY: 8G
+      USE_AIKAR_FLAGS: true
+      CF_OVERRIDES_EXCLUSIONS: |
+        # Not applicable for server side
+        shaderpacks/**
+      DIFFICULTY: normal
+      MOTD: "All the Mods 10 Server"
+      VIEW_DISTANCE: 8
+      SIMULATION_DISTANCE: 6
+      ALLOW_FLIGHT: TRUE
+      PAUSE_WHEN_EMPTY_SECONDS: 600
+      ENABLE_AUTOSTOP: "TRUE"
+    volumes:
+      - /storage/mc/atm10:/data

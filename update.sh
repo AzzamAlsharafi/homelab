@@ -27,6 +27,8 @@ MANUAL_SERVICES=(
 
 # Services that are never updated automatically or manually
 EXCLUDED_SERVICES=(
+    "terraria"
+    "mc"
 )
 
 # ==========================================
