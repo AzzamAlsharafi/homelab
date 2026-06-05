@@ -35,6 +35,11 @@ services:
       - "traefik.http.routers.stirling-pdf.rule=Host(`pdf.home.alsharafi.dev`)"
       - "traefik.http.services.stirling-pdf.loadbalancer.server.port=8080"
       - "traefik.http.routers.stirling-pdf.middlewares=auth@file"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   proxy:
